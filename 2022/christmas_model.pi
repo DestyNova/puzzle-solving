@@ -5,7 +5,6 @@ main =>
   People = ["Alice", "Bob", "Carol", "Dave", "Eve"],
   GiftOptions = ["Book", "Toy", "Chocolate", "Wine", "Flowers"],
   GiftCosts = [10, 20, 5, 15, 7],
-
   GiftHappiness = [
     [3, 2, 5, 1, 4],
     [5, 2, 4, 3, 1],
@@ -13,7 +12,6 @@ main =>
     [2, 5, 3, 4, 1],
     [4, 3, 1, 2, 5]
   ],
-
   Budget #= 50,
 
   % variables
