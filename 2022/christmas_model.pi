@@ -26,10 +26,8 @@ main =>
 
   % for each kid...
   foreach(I in 1..N)
-    Gifts[I] #= G,
-    Costs[I] #= C,
-    element(G, GiftCosts, C),
-    matrix_element(GiftHappiness, G, I, H),
+    element(Gifts[I], GiftCosts, Costs[I]),
+    matrix_element(GiftHappiness, Gifts[I], I, H),
     Happiness[I] #= H,
   end,
 
