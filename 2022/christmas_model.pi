@@ -1,0 +1,46 @@
+import cp.
+
+main =>
+  % facts
+  People = ["Alice", "Bob", "Carol", "Dave", "Eve"],
+  GiftOptions = ["Book", "Toy", "Chocolate", "Wine", "Flowers"],
+  GiftCosts = [10, 20, 5, 15, 7],
+
+  GiftHappiness = new_array(GiftOptions.length),
+  GiftHappiness[1] = [3, 2, 5, 1, 4],
+  GiftHappiness[2] = [5, 2, 4, 3, 1],
+  GiftHappiness[3] = [1, 3, 4, 5, 2],
+  GiftHappiness[4] = [2, 5, 3, 4, 1],
+  GiftHappiness[5] = [4, 3, 1, 2, 5],
+
+  Budget #= 50,
+
+  % variables
+  N = People.length,
+  Gifts = new_array(N),
+  Gifts :: 1..N,
+
+  Costs = new_array(N),
+  Costs :: min(GiftCosts)..max(GiftCosts),
+  Happiness = new_array(N),
+  Happiness :: 1..N,
+
+  % for each kid...
+  foreach(I in 1..N)
+    Gifts[I] #= G,
+    Costs[I] #= C,
+    element(G, GiftCosts, C),
+    matrix_element(GiftHappiness, G, I, H),
+    Happiness[I] #= H,
+  end,
+
+  sum(Costs) #<= Budget,
+  TotalCost #= sum(Costs),
+  TotalHappiness #= sum(Happiness),
+  solve([$max(TotalHappiness)], [Gifts,Costs,Happiness]),
+  foreach(I in 1..N)
+    Gift = Gifts[I],
+    printf("%s receives %s, cost %d, happiness: %d\n", People[I], GiftOptions[Gift], GiftCosts[Gift], Happiness[I]),
+  end,
+  println(totalHappiness=sum(Happiness)),
+  println(totalCost=sum(Costs)).
