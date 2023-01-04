@@ -1,0 +1,15 @@
+import sat.
+
+main =>
+  Vars = [B,C,E],
+  Vars :: -10000..10000,
+  all_different(Vars),
+  foreach(X in Vars)
+    X #> 0
+  end,
+  B + C #= E,
+  B*10+C + B*10+E #= E*10 + B,
+  solve([split], Vars),
+  println(Vars),
+  println(e1={B+C,E}),
+  println(e2={B*10+C+B*10+E,E*10+B}).

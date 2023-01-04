@@ -1,0 +1,98 @@
+import cp.
+
+% https://www.ahapuzzles.com/logic/zebra/ice-creams/
+% "very easy" but took me like 45 mins to write this... probably much quicker
+% to solve it on paper.
+
+main =>
+  N = 4,
+  BoyShirt = new_array(N),
+  BoyShirt :: 1..N,
+  all_different(BoyShirt),
+  BoyName = new_array(N),
+  BoyName :: 1..N,
+  all_different(BoyName),
+  BoySurname = new_array(N),
+  BoySurname :: 1..N,
+  all_different(BoySurname),
+  BoyIcecream = new_array(N),
+  BoyIcecream :: 1..N,
+  all_different(BoyIcecream),
+  BoyAge = new_array(N),
+  BoyAge :: 7..10,
+  all_different(BoyAge),
+
+  % clues
+
+  % At the second position is the boy wearing the Black shirt.
+  BoyShirt[2] #= 1,
+  % Nicholas is at the third position.
+  BoyName[3] #= 4,
+  % Young is at the third position.
+  BoySurname[3] #= 4,
+  % The 9-year-old boy is exactly to the left of Young.
+  BoyAge[2] #= 9,
+  % Kevin is next to the 9-year-old boy.
+  BoyName[1] #= 3 #\/ BoyName[3] #= 3,
+  % Harris is at the fourth position.
+  BoySurname[4] #= 1,
+  % At the fourth position is the boy who likes Vanilla ice cream.
+  BoyIcecream[4] #= 4,
+
+  AllShirts = [black, blue, green, red],
+  AllNames = [daniel, joseph, kevin, nicholas],
+  AllSurnames = [harris, miller, taylor, young],
+  AllIcecream = [chocolate, mint, strawberry, vanilla],
+
+  foreach(I in 1..N)
+    Age #= BoyAge[I],
+    Shirt #= BoyShirt[I],
+    Icecream #= BoyIcecream[I],
+    Name #= BoyName[I],
+    Surname #= BoySurname[I],
+
+    % The oldest boy is wearing the Blue shirt.
+    Age #= 10 #<=> Shirt #= 2,
+    % Nicholas is next to the boy who likes Strawberry ice cream.
+    if(I == 1) then
+      println(BoyIcecream),
+      Name #= 4 #=> BoyIcecream[I+1] #= 3,
+    elseif(I == 4) then
+      Name #= 4 #=> BoyIcecream[I-1] #= 3,
+    else
+      Name #= 4 #=> (BoyIcecream[I-1] #= 3 #\/ BoyIcecream[I+1] #= 3),
+    end,
+
+    % The 7-year-old boy is somewhere between the boy wearing the Blue shirt and the 8-year-old boy, in that order.
+    if(I == 2) then
+      Age #= 7 #=> BoyShirt[1] #= 2 #/\ (BoyAge[I+1] #= 8 #\/ BoyAge[I+2] #= 8),
+    elseif(I == 3) then
+      Age #= 7 #=> (BoyShirt[1] #= 2 #\/ BoyShirt[2] #= 2) #/\ BoyAge[I+1] #= 8,
+    else
+      Age #!= 7
+    end,
+
+    % Miller's favorite ice cream is Chocolate.
+    Surname #= 2 #<=> Icecream #= 1,
+    % The youngest boy is next to the boy that is wearing the Green shirt.
+    % this is awkward...
+    if(I == 1) then
+      Age #= 7 #=> BoyShirt[I+1] #= 3,
+    elseif(I == 4) then
+      Age #= 7 #=> BoyShirt[I-1] #= 3,
+    else
+      Age #= 7 #=> (BoyShirt[I+1] #= 3 #\/ BoyShirt[I-1] #= 3),
+    end,
+    Age #= 7 #=> Shirt #!= 3,
+
+    % Daniel likes Strawberry ice cream.
+    Name #= 1 #<=> Icecream #= 3,
+  end,
+
+  Vars = [BoyName, BoyShirt, BoySurname, BoyIcecream, BoyAge],
+  solve([split], Vars),
+  println(Vars),
+
+  foreach(I in 1..4)
+    printf("%d. %w %w, shirt: %w, ice cream: %w, age: %d\n", I, AllNames[BoyName[I]], AllSurnames[BoySurname[I]], AllShirts[BoyShirt[I]], AllIcecream[BoyIcecream[I]], BoyAge[I]),
+  end.
