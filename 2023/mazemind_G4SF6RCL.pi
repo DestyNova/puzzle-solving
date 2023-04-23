@@ -9,7 +9,7 @@ main =>
   end,
   B + C #= E,
   B*10+C + B*10+E #= E*10 + B,
-  solve([split], Vars),
+  solve([$min(B*C*E),split], Vars),
   println(Vars),
   println(e1={B+C,E}),
   println(e2={B*10+C+B*10+E,E*10+B}).

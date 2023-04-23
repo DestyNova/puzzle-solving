@@ -1,0 +1,19 @@
+% Count the number of valid solutions to the "n-* puzzle" described by Hertzprung and Kaplansky for a given n.
+% I found out about the problem from this YouTube video: https://youtu.be/qt5I1gZj1ew
+% There's an actual mathematical enumeration for the general case, but this program just cheats and uses cp.
+% When I finish watching the video I'll try adding the smart solution.
+
+% NB. sat really doesn't like this problem
+import cp.
+
+main =>
+  N = 9,
+  Xs = new_array(N),
+  Xs :: 1..N,
+  all_different(Xs),
+  foreach(I in 1..N-1)
+    abs(Xs[I] - Xs[I+1]) #> 1
+  end,
+  Sols = solve_all([ff,split], Xs),
+  printf("%w: Found %w solutions.\n", N, Sols.len).
+  % println(Sols).
