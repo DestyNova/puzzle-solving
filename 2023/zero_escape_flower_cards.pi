@@ -1,0 +1,82 @@
+import sat.
+
+% todo: rename b/m
+main =>
+  Vars = [P,F,S,G,X,B,M],
+  Vars :: 0..12,
+  all_different(Vars),
+
+  P #= 0,
+
+  M #< B,
+  M #< F,
+  M #> S,
+
+  M*M*M #> S,
+  M*M*M #> F,
+  M*M*M #< B,
+  M*M*M #<= 12,
+
+  F #> S,
+  F #< B,
+
+  X*M #> S,
+  X*M #> F,
+  X*M #< B,
+  X*M #<= 12,
+
+  G #< F,
+  G #> S,
+  G #< B,
+
+  S #< B,
+  S #< F,
+
+  M*M #< F,
+  M*M #< B,
+  M*M #> S,
+  M*M #<= 12,
+
+  G*M*M #> F,
+  G*M*M #> S,
+  G*M*M #> M,
+  G*M*M #<= 12,
+
+  X #< B,
+  X #> S,
+  X #< F,
+
+  B #> S,
+  B #> F,
+
+  G*M #> S,
+  G*M #< B,
+  G*M #< F,
+  G*M #<= 12,
+
+  G*G #> S,
+  G*G #> F,
+  G*G #< B,
+  G*G #<= 12,
+
+  D1 #= G*G,
+  D2 #= M*M,
+  D3 #= G*M,
+  D4 #= M*M*M,
+  D5 #= X*M,
+  D6 #= G*M*M,
+  Diffs = [D1,D2,D3,D4,D5,D6],
+  all_different(Diffs ++ Vars),
+  % Diffs = [G*G, M*M, G*M, M*M*M, X*M, G*M*M],
+  % foreach (T1 in Diffs, T2 in Diffs, T1 != T2)
+  %   T1 #!= T2
+  % end,
+  
+  Sols = solve_all([], [Vars ++ Diffs]),
+  println("P,F,S,G,X,B,M,D1,D2,D3,D4,D5,D6"),
+  println(Sols),
+  println(Sols.len),
+
+  % B B B F G
+  println(to_radix_string(11*11*11*7*3, 13)),
+  nl.

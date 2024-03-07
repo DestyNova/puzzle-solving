@@ -1,0 +1,26 @@
+% Bomb deactivation puzzle #2 from "Trauma Team" for the Nintendo Wii:
+%     "The sum of the first four is five.
+%     They are led by the largest.
+%     The sum of the last four is eleven.
+%     The smallest leads.
+%     What are they?"
+%
+% Extra clue from fingerprinting the phone keypad: Only the digits 1, 2 and 3 are used.
+
+% Benchmark 1: picat trauma_team.pi
+% Time (mean ± σ):      13.2 ms ±   0.8 ms    [User: 4.6 ms, System: 8.8 ms]
+% Range (min … max):    11.4 ms …  15.5 ms    181 runs
+
+import cp.
+
+main =>
+  Nums = [A,B,C,D,E,F,G,H],   % 8 digits
+  Nums :: 1..3,               % only digits 1, 2 and 3 are used
+  sum([A,B,C,D]) #= 5,        % the sum of the first four is five
+  max([A,B,C,D]) #= A,        % they are led by the largest
+  sum([E,F,G,H]) #= 11,       % the sum of the last four is eleven
+  min([E,F,G,H]) #= E,        % the smallest leads
+
+  Sols = solve_all([], Nums), % what are they?
+  Sols.len = 1,               % there should only be one solution
+  println(Sols).
