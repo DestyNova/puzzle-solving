@@ -1,0 +1,33 @@
+% See: https://twitter.com/hakankj/status/1791898086500970902
+% cp => 21.6 ms, sat => 63.1 ms
+import sat.
+
+main => go.
+
+go ?=>
+  Ns = [6,6,2,2,8,8,0,0,0],
+  Ps = new_array(Ns.len),
+  Ps :: 1..Ns.len,
+  all_different(Ps),
+  Ds = new_array(Ns.len),
+  Ds :: Ns,
+
+  foreach (I in 1..Ns.len)
+    element(I, Ps, J),
+    element(J, Ns, X),
+    element(I, Ds, X),
+  end,
+
+  Ds[1] #!= 0, Ds[2] #!= 0, Ds[4] #!= 0, Ds[7] #!= 0,
+  A #= Ds[1],
+  B #= 10*Ds[2]+Ds[3],
+  C #= 100*Ds[4]+10*Ds[5]+Ds[6],
+  D #= 100*Ds[7]+10*Ds[8]+Ds[9],
+  A + B + C #= D,
+
+  solve([A,B,C,D]),
+  printf("%d + %d + %d = %d\n", A,B,C,D),
+  fail,
+  nl.
+
+go => true.
