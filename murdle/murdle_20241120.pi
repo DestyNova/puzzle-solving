@@ -1,0 +1,73 @@
+% Try it at https://murdle.com/index.html
+
+import cp.
+
+main =>
+  % Locations
+  % THE BELL TOWER: An isolated stairwell leading up to the big bell. A superstition says that if you ring it accidentally, someone dies.
+  % INDOORS
+  % THE FRONT STEPS: Kind of a hassle to walk up and down, but it adds to the ambience.
+  % OUTDOORS
+  % THE VESTIBULE: An entrance room with many doors and a table covered in fliers for church events.
+  % INDOORS
+  Tower = 1, Steps = 2, Vestibule = 3,
+
+  % Weapons
+  % AN ANTIQUE FLINTLOCK: A fascinating weapon. Logico has seen people shot with something like this. It can be identified by a powder burn left behind.
+  % MEDIUM-WEIGHT • MADE OF WOOD & METAL
+  % A HOLY RELIC: Why do people always bring weapons? Logico had solved cases where someone was beaten & bashed with something like this. It can be identified by an empty pedestal left behind.
+  % MEDIUM-WEIGHT • MADE OF BONE
+  % A WINE BOTTLE: A possible weapon. Logico had solved cases where someone was stabbed with something like this. It can be identified by mysterious red droplet left behind.
+  % MEDIUM-WEIGHT • MADE OF GLASS
+  Flintlock = 1, Relic = 2, Bottle = 3,
+
+  % Suspects
+  % EARL GREY: He comes from a long line of Earl Greys. Yes, those Earl Greys. No, he doesn't sign autographs. But he always does have some bags with him.
+  % 5'9" • RIGHT-HANDED • BROWN EYES • WHITE HAIR • CAPRICORN
+  % JUDGE PINE: Master of the courtroom and possessed of a firm belief in justice, as decided by her and her alone.
+  % 5'6" • RIGHT-HANDED • BROWN EYES • BLACK HAIR • TAURUS
+  % GENERAL COFFEE: An espresso connoisseur, he always drinks his morning brew before sending his men across the battlefield to die. Was it for honor? Was it for glory? Was it for riches? Or was it for the love of the bean?
+  % 6'0" • RIGHT-HANDED • BROWN EYES • NO HAIR • SAGITTARIUS
+  Grey = 1, Pine = 2, Coffee = 3,
+  Weapon_suspect = new_array(3),
+  Weapon_suspect :: 1..3,
+  all_different(Weapon_suspect),
+
+  Location_suspect = new_array(3),
+  Location_suspect :: 1..3,
+  all_different(Location_suspect),
+
+  Location_weapon = new_array(3),
+  Location_weapon :: 1..3,
+  all_different(Location_weapon),
+
+  % If a weapon W and suspect S are in location L, then weapon W is held by suspect S
+  % there must be a neater way to do this; maybe using assignment/2?
+  foreach (L in 1..3)
+    W = Location_weapon[L],
+    S = Location_suspect[L],
+    element(W, Weapon_suspect, S),
+  end,
+
+  % Clues
+
+  % A holy relic was not on the front steps.
+  Location_weapon[Steps] #!= Relic,
+  % A Capricorn had the antique flintlock.
+  Weapon_suspect[Flintlock] #= Grey,
+
+  % Statements
+  % Earl Grey: General Coffee did not bring a wine bottle.
+  S1 #<=> (Weapon_suspect[Bottle] #!= Coffee),
+  % Judge Pine: Judicially, General Coffee was in the bell tower.
+  S2 #<=> (Location_suspect[Tower] #= Coffee),
+  % General Coffee: An antique flintlock was in the vestibule.
+  S3 #<=> (Location_weapon[Vestibule] #= Flintlock),
+
+  % The guilty will always lie, and the innocent will always tell the truth
+  S1 + S2 + S3 #= 2,
+  Guilty #= (1-S1) + 2*(1-S2) + 3*(1-S3),
+
+  Solns = solve_all([], [S1, S2, S3, Weapon_suspect, Location_suspect, Location_weapon, Guilty]),
+  println(Solns),
+  printf("Found %d solutions.\n", Solns.len).
