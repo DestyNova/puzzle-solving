@@ -1,0 +1,79 @@
+% 202N-11-22: THE CRYPTIC CASE OF THE DEAD SALTY SEA CAPTAIN
+% Try it at https://murdle.com/index.html
+import cp.
+
+main =>
+  N = 5,
+  % Locations
+  % THE GUEST HOUSE: If Logico hadn't seen the main mansion, this would be the biggest house he'd ever seen. INDOORS
+  % THE DOCKS: The only way on or off of the island. And they're always being guarded. OUTDOORS
+  % THE STATUE OF LORD VIOLET: An enormous statue of Lord Violet, Lady Violet's father. But the face has been smashed. OUTDOORS
+  % THE CLIFFS: These huge cliffs give you a great view of how there's no escape... OUTDOORS
+  % THE MAIN HOUSE: This house has more than 200 rooms, all of which are larger than Logico's apartment. INDOORS
+  [Guesthouse, Docks, Statue, Cliffs, House] = [] ++ 1..N,
+  Locations = [guesthouse, docks, statue, cliffs, house],
+
+  % Weapons
+  % A BRIEFCASE FULL OF MONEY: Unfortunately, the money it's filled with is the now entirely worthless Old Drakonian currency. HEAVY-WEIGHT • MADE OF LEATHER & MONEY
+  % AN ANTIQUE VASE: Worth more than all of your ancestors and all of your descendents put together. HEAVY-WEIGHT • MADE OF CERAMIC
+  % A HOLY DRAKONIAN AWARD: It reads, “To Lord Violet. For honor and bravery in the right against the Reds. - The Iron Tsar.” MEDIUM-WEIGHT • MADE OF WOOD & METAL
+  % AN ANGRY MOOSE: Not just angry: furious. HEAVY-WEIGHT • MADE OF MOOSE
+  % A BOOK OF WAR POETRY: Full of poems about the war between the Reds and the Royals, full of glory, betrayal, and loss. MEDIUM-WEIGHT • MADE OF PAPER
+  [Briefcase, Vase, Award, Moose, Book] = [] ++ 1..N,
+
+  % Suspects
+  % PRÉSIDENT AMARANTH: The literal French President, Amaranth loves spending time with his constituents, especially a certain 1% of them. 5'10" • RIGHT-HANDED • GREY EYES • RED HAIR • GEMINI
+  % MAJOR RED: The revolutionary leader who freed Drakonia from the grasp of the aristocracy before taking it into his. 6'2" • LEFT-HANDED • BROWN EYES • BROWN HAIR • ARIES
+  % FATHER MANGO: Father Mango has taken a vow of poverty, but he drives a BMW. He's taken a vow of obedience, but he has a staff of 25. He's taken a vow of chastity, too, which is why he's on vacation. 5'10" • LEFT-HANDED • BROWN EYES • NO HAIR • TAURUS
+  % VICE PRESIDENT MAUVE: Vice President of TekCo Futures. If she asks you to step into her metaverse, scream. 5'8" • RIGHT-HANDED • BROWN EYES • BLACK HAIR • TAURUS
+  % MX. TANGERINE: Proving that non-binary people can be murderers, too, Mx. Tangerine is an artist, poet, and potential suspect. 5'5" • LEFT-HANDED • HAZEL EYES • BLOND HAIR • PISCES
+
+  [Amaranth, Red, Mango, Mauve, Tangerine] = [] ++ 1..N,
+  Suspect_names = [amaranth, red, mango, mauve, tangerine],
+
+  Suspects = new_array(N),
+  Suspects :: 1..N,
+  all_different(Suspects),
+  Suspect_locations = new_array(N),
+  assignment(Suspects, Suspect_locations),
+
+  Weapons = new_array(N),
+  Weapons :: 1..N,
+  all_different(Weapons),
+  Weapon_locations = new_array(N),
+  assignment(Weapons, Weapon_locations),
+
+  % Clues
+  % An anonymous source that Logico trusted passed him a message that read:
+  %   "A YHOL IDANARKNO RDAWA AWS VSDOEDECIR TA HET LYNO WAY TO TEG ON OR FFO TEH AINDSL."
+  Weapon_locations[Award] #= Docks,
+
+  % An angry moose was not found on the cliffs.
+  Weapon_locations[Moose] #!= Cliffs,
+
+  % A leather-detector gave a positive reading at the statue of Lord Violet.
+  Weapon_locations[Briefcase] #= Statue,
+
+  % A red hair was found in the main house.
+  Suspect_locations[Amaranth] #= House,
+
+  % Whoever was in the guest house was left-handed.
+  Suspects[Guesthouse] :: [Red, Mango, Tangerine],
+
+  % A book of war poetry was discovered in the main house.
+  Weapon_locations[Book] #= House,
+
+  % A brown hair was found wrapped around the antique vase.
+  Suspect_locations[Red] #= Weapon_locations[Vase],
+
+  % Either Mx. Tangerine brought a Holy Drakonian award or Major Red was on the docks. (But not both!)
+  Weapon_locations[Award] #= Suspect_locations[Tangerine] #^ Suspect_locations[Red] #= Docks,
+
+  Solns = solve_all([], [Suspects, Suspect_locations, Weapons, Weapon_locations]),
+  println(Solns),
+  Solns.len == 1,
+  solve([], [Suspects, Suspect_locations, Weapons, Weapon_locations]),
+
+  % A briefcase full of money was used to commit the murder.
+  Murder_weapon_loc = Weapon_locations[Briefcase],
+  printf("The killer is %w, at the %w with the briefcase.\n", Suspect_names[Suspects[Murder_weapon_loc]], Locations[Murder_weapon_loc]).

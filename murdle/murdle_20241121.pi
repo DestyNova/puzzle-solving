@@ -1,0 +1,70 @@
+% Try it at https://murdle.com/index.html
+import cp.
+
+main =>
+  % Locations
+  % THE DINING CAR: The most expensive food on rails, and some of the worst, too. Maybe someone should murder the chef... INDOORS
+  % THE OBSERVATION DECK: Look out over the railing and observe things, like a murderer coming right for you! OUTDOORS
+  % THE LOCOMOTIVE: The deafening sound of the steam engine prevents Deductive Logico from being able to think while he's here. INDOORS
+  % THE SLEEPING CAR: If you turn off the reading light, you can take a nap here. Maybe a dirt nap. INDOORS
+  [Diner, Deck, Loco, Sleeper] = [] ++ 1..4,
+  Locations = [diner, deck, loco, sleeper],
+
+  % Weapons
+  % A HEAVY CODEBOOK: Filled with keywords and ciphers, you can use it to crack codes or skulls. HEAVY-WEIGHT • MADE OF PAPER
+  % AN IMPORTED ITALIAN KNIFE: It looks priceless, and that’s technically true, because it’s worthless. LIGHT-WEIGHT • MADE OF METAL & LEATHER
+  % LEATHER LUGGAGE: This luggage is hideous. The leather looked way better on the cow. HEAVY-WEIGHT • MADE OF METAL & LEATHER
+  % AN ANTIQUE CLOCK: Tick, tock, tick, tock. Technically, time is killing us all slowly. HEAVY-WEIGHT • MADE OF WOOD
+  [Book, Knife, Luggage, Clock] = [] ++ 1..4,
+
+  % Suspects
+  % DR. CRIMSON: She's the world's smartest doctor, according to her, and she's right. But just because you're smart doesn't mean you're not a murderer. 5'9" • LEFT-HANDED • GREEN EYES • RED HAIR • AQUARIUS
+  % DAME OBSIDIAN: A mystery writer whose books (such as the best-selling A Very Proper Murder) have sold more copies than the Bible and Shakespeare combined. 5'4" • LEFT-HANDED • GREEN EYES • BLACK HAIR • LEO
+  % DEACON VERDIGRIS: A deacon in the Church. She handles the parishoner's donations and, sometimes, their secrets. 5'3" • LEFT-HANDED • BLUE EYES • GREY HAIR • LEO
+  % DEAN GLAUCOUS: The dean of some such-and-such department at Deduction College. What does he do? Well, he handles the money, for one... 5'6" • RIGHT-HANDED • BROWN EYES • BROWN HAIR • VIRGO
+  [Crimson, Obsidian, Verdigris, Glaucous] = [] ++ 1..4,
+  Suspect_names = [crimson, obsidian, verdigris, glaucous],
+
+  Suspects = new_array(4),
+  Suspects :: 1..4,
+  all_different(Suspects),
+  Suspect_locations = new_array(4),
+  assignment(Suspects, Suspect_locations),
+
+  Weapons = new_array(4),
+  Weapons :: 1..4,
+  all_different(Weapons),
+  Weapon_locations = new_array(4),
+  assignment(Weapons, Weapon_locations),
+
+  % Clues
+  % A metal-detector gave a positive reading in the observation deck.
+  Weapons[Deck] :: [Knife, Luggage],
+
+  % This fingerprint was found on an imported Italian knife. (Verdigris)
+  Suspect_locations[Verdigris] #= Weapon_locations[Knife],
+
+  % Either leather luggage was in the dining car or Dean Glaucous brought leather luggage. (But not both!)
+  Weapon_locations[Luggage] #= Diner #^ Suspect_locations[Glaucous] #= Weapon_locations[Luggage],
+
+  % The second shortest suspect was childhood friends with the person who brought a heavy codebook.
+  Suspect_locations[Obsidian] #!= Weapon_locations[Book],
+
+  % Whoever was in the sleeping car was right-handed.
+  Suspects[Sleeper] #= Glaucous,
+
+  % Dr. Crimson was not near the heat of a steam engine.
+  Suspects[Loco] #!= Crimson,
+
+  % The suspect who was carrying a heavy codebook was known to have green eyes.
+  element(Weapon_locations[Book], Suspects, Book_wielder),
+  Book_wielder :: [Crimson, Obsidian],
+
+  Solns = solve_all([], [Suspects, Suspect_locations, Weapons, Weapon_locations]),
+  println(Solns),
+  Solns.len == 1,
+  solve([], [Suspects, Suspect_locations, Weapons, Weapon_locations]),
+
+  % An antique clock was clearly used to commit the crime.
+  Murder_weapon_loc = Weapon_locations[Clock],
+  printf("The killer is %w, at the %w with the clock.\n", Suspect_names[Suspects[Murder_weapon_loc]], Locations[Murder_weapon_loc]).
