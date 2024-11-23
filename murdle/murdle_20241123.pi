@@ -1,0 +1,94 @@
+% 2024-11-23: THE UNFORTUNATE-DEMISE-OF-THE-SELF-DESCRIBED-ARTISAN MURDER
+% Try it at https://murdle.com/index.html
+import cp.
+
+main =>
+  N = 4,
+  % Locations
+  % THE GIFT SHOP: It sells tiny statues, mementos, and commemorative T-shirts, all for ten times what they cost. INDOORS
+  % THE BOUTIQUE HOTEL: Family run, i.e. poorly run. This hotel has a long history of providing uncomfortable beds in tiny (yet somehow still drafty) rooms. INDOORS
+  % THE 5-STAR RESTAURANT: Founded by a man who got tired of city living and wanted to make country money. It has a gourmet kitchen and charges gourmet prices. INDOORS
+  % THE TRAILHEAD: It leads to several trails through the woods, any of which would be great for hiding a body. OUTDOORS
+  [Shop, Hotel, Restaurant, Trailhead] = [] ++ 1..N,
+  Locations = [shop, hotel, restaurant, trailhead],
+
+  % Weapons
+  % A SNOWGLOBE: A tiny water-filled model of the town in glass. It doesn't really snow in town. MEDIUM-WEIGHT • MADE OF METAL, GLASS & WATER
+  % CLIMBING ROPE: You could use this for climbing! Or strangling! Just make sure you don't leave a single fiber behind... LIGHT-WEIGHT • MADE OF FIBER
+  % A WALKING STICK: This could help you on a hike, or help you with a murder. Or just make small holes in the ground. MEDIUM-WEIGHT • MADE OF METAL
+  % A STONE DAGGER: For the performance of ancient rituals. Also, for murder. Look for slash marks! MEDIUM-WEIGHT • MADE OF STONE
+  [Globe, Rope, Stick, Dagger] = [] ++ 1..N,
+  Weapon_names = [globe, rope, stick, dagger],
+
+  % Suspects
+  % BARON MAROON: An incredibly haughty man who holds a grudge. Nobody wants to offend the baron. At least, nobody who's still alive... 6'2" • RIGHT-HANDED • HAZEL EYES • RED HAIR • SCORPIO
+  % SECRETARY CELADON: The Secretary of Defense, and someone who is personally responsible for a number of war crimes, some of which are now named after her. 5'6" • LEFT-HANDED • GREEN EYES • BROWN HAIR • LEO
+  % SISTER LAPIS: Incredibly pious, she travels the world, doing God's work, but on His dime, too. One of her habits is cashmere and the other is spending. 5'2" • RIGHT-HANDED • BROWN EYES • BROWN HAIR • CANCER
+  % LORD LAVENDER: A politically-conservative MP in the House of Lords, as well as the musical theater composer behind such hits as Jonah and the Unbelievable Sparkling Fish and The Spectre of the Improv. 5'9" • RIGHT-HANDED • GREEN EYES • GREY HAIR • VIRGO
+  [Maroon, Celadon, Lapis, Lavender] = [] ++ 1..N,
+  Suspect_names = [maroon, celadon, lapis, lavender],
+
+  % Motives
+  % TO FIGHT FOR THE REVOLUTION: Power to the people! But first, power to this one particular warlord.
+  % TO SILENCE A WITNESS: What did they see? Were they worth being killed over it?
+  % TO ESCAPE BLACKMAIL: Blackmail can be very profitable, but all profits come with risks.
+  % TO ELIMINATE A SPY: Anybody could be a spy. And anybody might want to kill a spy. So anybody might want to kill anybody.
+  [Revolution, Silence, Blackmail, Spy] = [] ++ 1..N,
+  Motives = [revolution, silence, blackmail, spy],
+
+  Suspects = new_array(N), % location -> suspect
+  Suspects :: 1..N,
+  all_different(Suspects),
+  Suspect_locations = new_array(N), % suspect -> location
+  assignment(Suspects, Suspect_locations),
+
+  Weapons = new_array(N), % location -> weapon
+  Weapons :: 1..N,
+  all_different(Weapons),
+  Weapon_locations = new_array(N), % weapon -> location
+  assignment(Weapons, Weapon_locations),
+
+  Suspect_motives = new_array(N), % suspect -> motive
+  Suspect_motives :: 1..N,
+  all_different(Suspect_motives), % definitely required
+
+  % Clues
+  % The person with a stone dagger wanted to eliminate a spy.
+  element(Weapon_locations[Dagger], Suspects, Dagger_user),
+  element(Dagger_user, Suspect_motives, Spy),
+
+  % This fingerprint was found on climbing rope.
+  Weapon_locations[Rope] #= Suspect_locations[Maroon],
+
+  % One of Logico's contacts in The Community of the Hallowed Ruins gave him this tip:
+  % "EHT PSREON HOW AWTNED TO CEEPAS AILCMKBAL AWS AT ETH EUTQIOUB LOHET."
+  element(Suspects[Hotel], Suspect_motives, Blackmail),
+
+  % The person with a snowglobe did not want to silence a witness.
+  element(Silencer, Suspect_motives, Silence),
+  element(Silencer_location, Suspects, Silencer),
+  Silencer_location #!= Weapon_locations[Globe],        % quite awkward...
+
+  % Analysts discovered traces of a weapon made of stone on the clothing of Secretary Celadon.
+  Weapon_locations[Dagger] #= Suspect_locations[Celadon],
+
+  % A grey hair was found at the trailhead.
+  Suspect_locations[Lavender] #= Trailhead,
+
+  % Statements -- The guilty will always lie, and the innocent will always tell the truth
+  % Baron Maroon: Sister Lapis was not at the boutique hotel.
+  Guilty #= 1 #^ Suspects[Hotel] #!= Lapis,
+  % Secretary Celadon: Don't mistake me: a walking stick was in the gift shop.
+  Guilty #= 2 #^ Weapons[Shop] #= Stick,
+  % Sister Lapis: Lord Lavender was not at the 5-star restaurant. (confirmed by the grey hair clue)
+  Guilty #= 3 #^ Suspects[Restaurant] #!= Lavender,
+  % Lord Lavender: Sister Lapis was at the boutique hotel. (conflicts with Maroon's statement, so one of them is guilty)
+  Guilty #= 4 #^ Suspects[Hotel] #= Lapis,
+
+  Solns = solve_all([], [Suspects, Suspect_locations, Weapons, Weapon_locations, Suspect_motives, Guilty]),
+  println(Solns),
+  Solns.len == 1,
+
+  solve([], [Suspects, Suspect_locations, Weapons, Weapon_locations, Suspect_motives, Guilty]),
+  Guilty_location = Suspect_locations[Guilty],
+  printf("The killer is %w, at the %w with the %w. Motive: %w.\n", Suspect_names[Suspects[Guilty]], Locations[Guilty_location], Weapon_names[Weapons[Guilty_location]], Motives[Suspect_motives[Guilty]]).
