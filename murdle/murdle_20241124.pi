@@ -1,0 +1,91 @@
+% 2024-11-24: MURDER AT THE LUXURIOUS WHITE COLLAR PRISON
+% Try it at https://murdle.com/index.html
+import sat.
+
+main =>
+  N = 6,
+  % Suspects
+  % PRINCIPAL APPLEGREEN: A strict principal about everything except getting away with murder. His hands are always covered in chalk. 5'11" • RIGHT-HANDED • BLUE EYES • NO HAIR • LIBRA
+  % BROTHER BROWNSTONE: A monk who has dedicated his life to the church, specifically to making money for it. 5'4" • LEFT-HANDED • BROWN EYES • BROWN HAIR • CAPRICORN
+  % GENERAL COFFEE: An espresso connoisseur, he always drinks his morning brew before sending his men across the battlefield to die. Was it for honor? Was it for glory? Was it for riches? Or was it for the love of the bean? 6'0" • RIGHT-HANDED • BROWN EYES • NO HAIR • SAGITTARIUS
+  % DAME OBSIDIAN: A mystery writer whose books (such as the best-selling How I Murdered My Husband: an iDunnit) have sold more copies than the Bible and Shakespeare combined. 5'4" • LEFT-HANDED • GREEN EYES • BLACK HAIR • LEO
+  % VICE PRESIDENT MAUVE: Vice President of TekCo Futures. If she asks you to step into her metaverse, refuse. 5'8" • RIGHT-HANDED • BROWN EYES • BLACK HAIR • TAURUS
+  % LORD LAVENDER: A politically-conservative MP in the House of Lords, as well as the musical theater composer behind such hits as Dogs and Mr. Moses Megastar. 5'9" • RIGHT-HANDED • GREEN EYES • GREY HAIR • VIRGO
+  [Applegreen, Brownstone, Coffee, Obsidian, Mauve, Lavender] = [] ++ 1..N,
+  Suspect_names = [applegreen, brownstone, coffee, obsidian, mauve, lavender],
+  Suspects = new_array(N), % location -> suspect
+  Suspects :: 1..N,
+  all_different(Suspects),
+
+  % Weapons
+  % A LAWYER: You're going to get an incredibly expensive bill, but it's worth it for what they'll do to your enemies. HEAVY-WEIGHT • MADE OF ALCOHOL & GREED
+  % A DIAMOND-ENCRUSTED SKELETON KEY: This can open any key in the prison (by bribing the guards with the diamonds). LIGHT-WEIGHT • MADE OF METAL & DIAMONDS
+  % A ROPE OF DESIGNER CLOTHES: A rope is only as strong as its weakest link. You should hope the Gucci holds. MEDIUM-WEIGHT • MADE OF SILK
+  % A PAIR OF LITERAL GOLDEN HANDCUFFS: This is taking the metaphor too far. (It comes with a golden key, too.) MEDIUM-WEIGHT • MADE OF METAL
+  % A BOTTLE OF CABERNET TOILET WINE: The fanciest red wine you can make in a prison toilet. MEDIUM-WEIGHT • MADE OF GLASS & ALCOHOL
+  % A POISONED BIRTHDAY CAKE: There's a nail file hidden beneath the frosting. So, it's deadly in two ways. MEDIUM-WEIGHT • MADE OF FROSTING & CHEMICALS
+
+  [Lawyer, Key, Rope, Cuffs, Wine, Cake] = [] ++ 1..N,
+  Weapon_names = [lawyer, key, rope, cuffs, wine, cake],
+  Weapons = new_array(N), % location -> weapon
+  Weapons :: 1..N,
+  all_different(Weapons),
+
+  Suspect_weapons = new_array(N), % suspect -> weapon
+  Suspect_weapons :: 1..N,
+  foreach (L in 1..N)
+    element(Suspects[L], Suspect_weapons, Weapons[L]) % if a suspect and weapon share a location, then the suspect holds that weapon
+  end,
+
+  % Locations
+  % THE PRIVATE SUITE: Mostly for conjugal visits and bribery, the private suite (and its King-sized bed) can be rented by the hour. Technically, it's a form of solitary confinement. INDOORS
+  % THE GUARD TOWER: This is actually a great photo opportunity for the prisoners. INDOORS
+  % THE SPA: Built with money from a fundraiser held by the PTA (Prisoner Treats Association). So, don't worry, your tax dollars did not go toward building this steam-soaked spa (though they do pay for its heating bill). Everything in here is wet. INDOORS
+  % THE MOVIE THEATER: The movie theater features red velvet seats, ushers, and popcorn with real butter. But don't worry. It's not an IMAX. (Technically, it's an "IMAX laser.") INDOORS
+  % THE REC ROOM: A place to hang out, play video games, and swap insider stock tips. INDOORS
+  % THE MICHELIN-STARRED CAFETERIA: The food is organic, non-GMO, and vegan. And you know it's good because a tire company said so. INDOORS
+  [Suite, Tower, Spa, Theatre, Rec, Cafe] = [] ++ 1..N,
+  Locations = [suite, tower, spa, theatre, rec, cafe],
+
+  % Clues
+  % Vice President Mauve was suspicious of the person who brought a poisoned birthday cake.
+  Suspect_weapons[Mauve] #!= Cake,
+
+  % A bottle of cabernet toilet wine was brought by a member of The Circle of the Sword, and only Leos are allowed to join the The Circle of the Sword.
+  Suspect_weapons[Obsidian] #= Wine,
+
+  % General Coffee was seen with a lawyer.
+  Suspect_weapons[Coffee] #= Lawyer,
+
+  % Vice President Mauve was seen at a great place for a photograph.
+  Suspects[Tower] #= Mauve,
+
+  % A red drop was discovered beside a non-GMO dinner.
+  Weapons[Cafe] #= Wine,
+
+  % Brother Brownstone was seen with a rope of designer clothes.
+  Suspect_weapons[Brownstone] #= Rope,
+
+  % This fingerprint was found in the rec room. (matches Lord Lavender)
+  Suspects[Rec] #= Lavender,
+
+  % A loose diamond was discovered next to a King-sized bed.
+  Weapons[Suite] #= Key,
+
+  % Whoever was in the movie theater was left-handed.
+  Suspects[Theatre] :: [Brownstone, Obsidian],
+
+  % The body was found in the spa.
+  element(Spa, Suspects, Guilty),
+
+  Vars = [Suspects, Weapons, Suspect_weapons, Guilty],
+  Solns = solve_all([], Vars),
+  foreach (S in Solns)
+    println(S),
+    report_killer(Suspect_names, Weapon_names, Locations, S)
+  end,
+  Solns.len == 1.
+
+report_killer(Suspect_names, Weapon_names, Locations, [Suspects, Weapons, Suspect_weapons, Guilty]) =>
+  nth(Location, Suspects, Guilty),
+  printf("The killer is %w, at the %w with the %w.\n", Suspect_names[Suspects[Guilty]], Locations[Location], Weapon_names[Weapons[Location]]).
