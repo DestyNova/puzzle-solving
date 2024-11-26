@@ -1,0 +1,76 @@
+% 2024-11-25: THE MYSTERY OF THE MURDER UNDER SOMEBODY'S CAR
+% Try it at https://murdle.com/index.html
+import cp.
+
+main =>
+  N = 4,
+  % Suspects
+  % ADMIRAL NAVY: The firstborn son of an Admiral Navy who himself was the son of an Admiral Navy. He always smells faintly of the sea. 5'9" • RIGHT-HANDED • BLUE EYES • BROWN HAIR • CANCER
+  % THE DUCHESS OF VERMILLION: The Duchess is an tall old woman with tall old secrets. If she is the murderer, then it certainly wouldn't be the first time. 5'9" • LEFT-HANDED • GREY EYES • WHITE HAIR • PISCES
+  % LADY VIOLET: The daughter of Lord Violet, and the heiress of the Violet Isles, the largest extrajudicial territory in the world. 5'0" • RIGHT-HANDED • BLUE EYES • BLOND HAIR • VIRGO
+  % SIGNOR EMERALD: An Italian jeweler of great renown, Signor Emerald has traveled the world in search of rare gemstones, which are always falling out of his pockets. 5'8" • LEFT-HANDED • BROWN EYES • BLACK HAIR • SAGITTARIUS
+  [Navy, Vermillion, Violet, Emerald] = [] ++ 1..N,
+  Suspect_names = [navy, vermillion, violet, emerald],
+  Suspects = new_array(N), % location -> suspect
+  Suspects :: 1..N,
+  all_different(Suspects),
+
+  % Weapons
+  % A BOILING POT: Hot and heavy! Logico had heard of people being bashed & boiled with something like this. It can be identified by a wet spot left behind. HEAVY-WEIGHT • MADE OF METAL & WATER
+  % KINDNESS: Have you ever made a cake for a diabetic? You're half-way there. Alternatively, you can simply smother them to death. (Submitted by Mia.) LIGHT-WEIGHT • MADE OF GENEROSITY & WARMTH%
+  % A BRICK: A regular brick. Logico had solved cases where someone was bashed with something like this. It can be identified by a chip of red clay left behind. HEAVY-WEIGHT • MADE OF CLAY
+  % A METAL STRAW: Better for the planet than a plastic straw, but more deadly! Logico had solved cases where someone was stabbed with something like this. It can be identified by a small hole left behind. HEAVY-WEIGHT • MADE OF METAL & WOOD
+  [Pot, Kindness, Brick, Straw] = [] ++ 1..N,
+  Weapon_names = [pot, kindness, brick, straw],
+  Weapons = new_array(N), % location -> weapon
+  Weapons :: 1..N,
+  all_different(Weapons),
+
+  Suspect_weapons = new_array(N), % suspect -> weapon
+  Suspect_weapons :: 1..N,
+  foreach (L in 1..N)
+    element(Suspects[L], Suspect_weapons, Weapons[L]) % if a suspect and weapon share a location, then the suspect holds that weapon
+  end,
+
+  % Locations
+  % THE PARKING LOT: There's no drive-thru, because this is a fancy coffee shop. People have to get out of their cars to drink coffee. OUTDOORS
+  % THE COURTYARD: Sun-dappled tables and chairs sit beneath a magnificent oak. A great place for conversation... or murder. OUTDOORS
+  % THE BATHROOM: It's a coffee shop. So obviously, it's going to have a bathroom. This one is always out of paper towels. INDOORS
+  % THE BEAN ROOM: Full of bags and bags of beans. The smell is so strong and delicious that Logico wants to eat the beans, even though he knows thats illogical. INDOORS
+
+  [Lot, Courtyard, Bathroom, Beanroom] = [] ++ 1..N,
+  Locations = [lot, courtyard, bathroom, beanroom],
+
+  % Clues
+  % Signor Emerald was suspicious of the person who brought kindness.
+  Suspect_weapons[Emerald] #!= Kindness,
+
+  % The Duchess of Vermillion never set foot in the bean room.
+  Suspects[Beanroom] #!= Vermillion,
+
+  % A messenger from The Venerable Denomination of the Light God gave Logico a note that read: ODGB YLROHW KDG D ERLOLQJ SRW.
+  Suspect_weapons[Violet] #= Pot,
+
+  % Admiral Navy was found outdoors.
+  Suspects[Lot] #= Navy #\/ Suspects[Courtyard] #= Navy,
+
+  % Whoever had a brick was right-handed.
+  Suspect_weapons[Navy] #= Brick #\/ Suspect_weapons[Violet] #= Brick,
+
+  % A small hole was found on the roots of an oak.
+  Weapons[Courtyard] #= Straw,
+
+  % The body was found in the parking lot.
+  element(Lot, Suspects, Guilty),
+
+  Vars = [Suspects, Weapons, Suspect_weapons, Guilty],
+  Solns = solve_all([], Vars),
+  foreach (S in Solns)
+    println(S),
+    report_killer(Suspect_names, Weapon_names, Locations, S)
+  end,
+  Solns.len == 1.
+
+report_killer(Suspect_names, Weapon_names, Locations, [Suspects, Weapons, Suspect_weapons, Guilty]) =>
+  nth(Location, Suspects, Guilty),
+  printf("The killer is %w, at the %w with the %w.\n", Suspect_names[Suspects[Guilty]], Locations[Location], Weapon_names[Weapons[Location]]).

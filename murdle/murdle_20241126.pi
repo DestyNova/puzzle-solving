@@ -1,0 +1,89 @@
+% 2024-11-26: THE MYSTERY OF THE MURDER IN A PLACE THAT’S NOW A MUSEUM
+% Try it at https://murdle.com/index.html
+import sat.
+
+main =>
+  N = 3,
+  % Suspects
+  % DAME OBSIDIAN: A mystery writer whose books (such as the best-selling How I Murdered My Husband: an iDunnit) have sold more copies than the Bible and Shakespeare combined. 5'4" • LEFT-HANDED • GREEN EYES • BLACK HAIR • LEO
+  % THE AMAZING AUREOLIN: The Amazing Aureolin is a touring magician who has perfected the whole sawing-the-husband-in-two routine. Then, she made the body disappear. For her next trick, she's going to need a volunteer. 5'6" • LEFT-HANDED • GREEN EYES • BLOND HAIR • ARIES
+  % SIR RULEAN: A sophisticated gentleman who just happens to have been knighted, if you believe the Official Knighting Documents he is always waving around. 5'8" • RIGHT-HANDED • BLUE EYES • RED HAIR • LEO
+
+  [Obsidian, Aureolin, Rulean] = [] ++ 1..N,
+  Suspect_names = [obsidian, aureolin, rulean],
+  Suspects = new_array(N), % location -> suspect
+  Suspects :: 1..N,
+  all_different(Suspects),
+
+  % Weapons
+  % IVORY NIGHT EATER FANGS: Ancient Drakonian warriors would wear these to terrify their enemies. MEDIUM-WEIGHT • MADE OF SOME POOR ELEPHANT
+  % A POISONED GOBLET: It's drugged with one of the greatest poisons known to mankind: alcohol. HEAVY-WEIGHT • MADE OF METAL & TOXINS
+  % A WOODEN STAKE: For killing night-eaters, and people, too. But watch out for splinters. MEDIUM-WEIGHT • MADE OF WOOD
+  [Fangs, Goblet, Stake] = [] ++ 1..N,
+  Weapon_names = [fangs, goblet, stake],
+  Weapons = new_array(N), % location -> weapon
+  Weapons :: 1..N,
+  all_different(Weapons),
+
+  Suspect_weapons = new_array(N), % suspect -> weapon
+  Suspect_weapons :: 1..N,
+  foreach (L in 1..N)
+    element(Suspects[L], Suspect_weapons, Weapons[L]) % if a suspect and weapon share a location, then the suspect holds that weapon
+  end,
+
+  % Motives
+  % TO HIDE AN AFFAIR: You never know who might be having an affair these days.
+  % TO RAGE WITH JEALOUSY: Logico has seen all sorts. He has seen someone be killed over a bagel.
+  % TO INHERIT A FORTUNE: One of the oldest reasons to murder, right after God liking your brother's sacrifice more.
+  [Affair, Jealousy, Money] = [] ++ 1..N,
+  Motive_names = [affair, jealousy, money],
+  Motives = new_array(N), % location -> motive
+  Motives :: 1..N,
+  all_different(Motives),
+
+  Suspect_motives = new_array(N), % suspect -> motive
+  Suspect_motives :: 1..N,
+  foreach (L in 1..N)
+    element(Suspects[L], Suspect_motives, Motives[L]) % if a suspect and motive share a location, then the suspect holds that motive
+  end,
+
+  % Locations
+  % THE WESTERN CITADEL: Near the disputed border, this fortress changes hands every month, at the cost of only a few battalions. INDOORS
+  % THE PEOPLE’S CITY: It used to be called St. Lupine. Now, it's the People's City. But it's still run from the Capital. OUTDOORS
+  % THE IRON PALACE MUSEUM: This was the old fortress of the Iron Tsar. Now, it's a museum for the people. INDOORS
+  [Citadel, City, Museum] = [] ++ 1..N,
+  Locations = [citadel, city, museum],
+
+  % Clues
+  % Sir Rulean was in a place coincidentally referenced in Dame Obsidian's famous “unauthorized autobiography.”
+  Suspects[Citadel] #= Rulean,
+
+  % Whoever wanted to inherit a fortune was right-handed.
+  Suspect_motives[Rulean] #= Money,
+
+  % The suspect who shamelessly bragged about wanting to hide an affair was found indoors.
+  Motives[City] #!= Affair,
+
+  % Either ivory night eater fangs was in the People’s City or The Amazing Aureolin brought a wooden stake. (But not both!)
+  Weapons[City] #= Fangs #^ Suspect_weapons[Aureolin] #= Stake,
+
+  % Dame Obsidian was childhood friends with the person who brought a poisoned goblet.
+  Suspect_weapons[Obsidian] #!= Goblet,
+
+  % Whoever wanted to rage with jealousy was a Leo.
+  Suspect_motives[Aureolin] #!= Jealousy,
+
+  % Logico determined the murder took place in the Iron Palace Museum based on the clues he found there, specifically the corpse.
+  Suspects[Museum] #= Guilty,
+
+  Vars = [Suspects, Weapons, Suspect_weapons, Motives, Suspect_motives, Guilty],
+  Solns = solve_all([], Vars),
+  foreach (S in Solns)
+    println(S),
+    report_killer(Suspect_names, Weapon_names, Motive_names, Locations, S)
+  end,
+  Solns.len == 1.
+
+report_killer(Suspect_names, Weapon_names, Motive_names, Locations, [Suspects, Weapons, Suspect_weapons, Motives, Suspect_motives, Guilty]) =>
+  nth(Location, Suspects, Guilty),
+  printf("The killer is %w, at the %w with the %w, because: %w.\n", Suspect_names[Guilty], Locations[Location], Weapon_names[Weapons[Location]], Motive_names[Motives[Location]]).
