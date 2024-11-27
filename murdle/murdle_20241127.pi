@@ -1,0 +1,55 @@
+% 2024-11-27: BUT WHAT ABOUT THE UNFORTUNATE DEMISE OF THE CAA AGENT?
+% Try it at https://murdle.com/index.html
+go ?=>
+  suspects(Suspects),
+  % Suspects
+  % LORD LAVENDER: A politically-conservative MP in the House of Lords, as well as the musical theater composer behind such hits as Dogs and Moonlight Local. 5'9" • RIGHT-HANDED • GREEN EYES • GREY HAIR • VIRGO
+  % PRINCIPAL APPLEGREEN A strict principal about everything except getting away with murder. His hands are always covered in chalk. 5'11" • RIGHT-HANDED • BLUE EYES • NO HAIR • LIBRA
+  % OFFICER COPPER The best part of being a policewoman criminal is that you can fail to investigate your own crimes and cut out the middleman. 5'5" • RIGHT-HANDED • BLUE EYES • BLOND HAIR • ARIES
+  Names = [lavender, applegreen, copper],
+  _ = [_ : S in Names, member($suspect(S, _, _), Suspects)],
+
+  % Weapons
+  % AN ALUMINUM PIPE Why do people always bring weapons? Logico could imagine someone getting bashed & beaten with something like this. MEDIUM-WEIGHT • MADE OF METAL
+  % A RARE VASE An interesting weapon. Logico has seen people bashed with something like this. For evidence of this, look for a shard of ceramic left behind. HEAVY-WEIGHT • MADE OF CERAMIC
+  % A JAR OF ASHES A fascinating weapon. Logico could imagine someone getting bashed & beaten with something like this. It can be identified by some black ash left behind. MEDIUM-WEIGHT • MADE OF METAL & HUMAN REMAINS
+  % _ = [_ : W in [pipe, vase, jar], member($suspect(_,W,_), Suspects)], % why doesn't this work? ChatGPT suggests it triggers eager non-backtrackable evaluation...
+  foreach (W in [pipe, vase, jar])
+    member($suspect(_, W, _), Suspects)
+  end,
+
+  % Locations
+  % THE UPSTAIRS BALCONY One of these railings is broken, but don't let it spoil the view. Just don't lean out too far... OUTDOORS
+  % THE ENORMOUS BATHROOM The marble tub is bigger than Deductive Logico's apartment! INDOORS
+  % THE GROUNDS Vast and well-kempt with an enormous statue of an Academy Award in the middle. OUTDOORS
+  foreach (L in [balcony, bathroom, grounds])
+    member($suspect(_, _, L), Suspects)
+  end,
+
+  % Clues
+
+  % The second tallest suspect kept accusing the person who had an aluminum pipe.
+  (member($suspect(lavender, pipe, _), Suspects) -> fail; true),
+
+  % The suspect on the grounds had blond hair.
+  member($suspect(copper, _, grounds), Suspects),
+
+  % Statements: the killer always lies, the innocent always tell the truth
+  member(Guilty, Names),
+
+  % Lord Lavender: Officer Copper brought a rare vase.
+  (Guilty = lavender || member($suspect(copper, vase, _), Suspects)),
+  % Principal Applegreen: I brought a jar of ashes.
+  (Guilty = applegreen || member($suspect(applegreen, jar, _), Suspects)),
+  % Officer Copper: Some advice from a cop: a rare vase was in the enormous bathroom.
+  (Guilty = copper || member($suspect(_, vase, bathroom), Suspects)),
+
+  member($suspect(Guilty, Weapon, Location), Suspects),
+  printf("It was %w in the %w with the %w.\n", Guilty, Location, Weapon),
+  fail.
+
+go => true.
+
+suspects(Suspects) => Suspects = [$suspect(_,_,_) : _ in 1..3].
+
+main => go.
