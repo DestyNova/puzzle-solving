@@ -1,0 +1,75 @@
+% 2024-11-28: THE MYSTERIOUS MURDER AT THE NATURE RESORT
+% Try it at https://murdle.com/index.html
+import cp.
+
+main =>
+  N = 4,
+  % Suspects
+  % UNCLE MIDNIGHT: When his dad died, he bought a desert mansion with a pool and retired. He was 17. 5'8" • LEFT-HANDED • BLUE EYES • BROWN HAIR • SAGITTARIUS
+  % MISS SAFFRON: Gorgeous and stunning, but maybe not all there in the brains department. Or maybe that's what she wants you to think. Or maybe she wants you to think that's what she wants you to think. Only her pet poodle knows. 5'2" • LEFT-HANDED • HAZEL EYES • BLOND HAIR • LIBRA
+  % JUDGE PINE: Master of the courtroom and possessed of a firm belief in justice, as decided by her and her alone. 5'6" • RIGHT-HANDED • BROWN EYES • BLACK HAIR • TAURUS
+  % FATHER MANGO: Father Mango has taken a vow of poverty, but he drives a BMW. He's taken a vow of obedience, but he has a staff of 25. He's taken a vow of chastity, too, which is why he's on vacation. 5'10" • LEFT-HANDED • BROWN EYES • NO HAIR • TAURUS
+  [Midnight, Saffron, Pine, Mango] = [] ++ 1..N,
+  Suspect_names = [midnight, saffron, pine, mango],
+  Suspects = new_array(N), % location -> suspect
+  Suspects :: 1..N,
+  all_different(Suspects),
+
+  % Weapons
+  % A VENOMOUS SPIDER: Definitely not an accident: its unusual webbing shows that this spider is not native to these woods, or even to this hemisphere. Someone brought it on purpose! LIGHT-WEIGHT • MADE OF A LIVE ANIMAL
+  % A BRICK: Red, chipped, and heavy. Logico could imagine someone getting bashed with something like this. It can be identified by a chip of red clay left behind. HEAVY-WEIGHT • MADE OF CLAY
+  % A BOW AND ARROW: Look at this thing: what a beauty! Look at the linen bowstring and the beautiful feathers on the arrows. MEDIUM-WEIGHT • MADE OF WOOD
+  % A PAIR OF GARDENING SHEARS: Rusty, heavy, and dangerous. Logico would swear on his eyebrows that someone could be stabbed with something like this. For evidence of this, look for a rusted iron screw left behind. MEDIUM-WEIGHT • MADE OF METAL
+  [Spider, Brick, Bow, Shears] = [] ++ 1..N,
+  Weapon_names = [spider, brick, bow, shears],
+  Weapons = new_array(N), % location -> weapon
+  Weapons :: 1..N,
+  all_different(Weapons),
+
+  Suspect_weapons = new_array(N), % suspect -> weapon
+  Suspect_weapons :: 1..N,
+  foreach (L in 1..N)
+    element(Suspects[L], Suspect_weapons, Weapons[L]) % if a suspect and weapon share a location, then the suspect holds that weapon
+  end,
+
+  % Locations
+  % THE ANCIENT RUINS: These same ancient ruins have appeared in several places, haven't they? Maybe they are connected somehow... OUTDOORS
+  % THE ENTRANCE GATE: A huge gate that advertises a place where you can disconnect from the modern world so long as the modern world has made you rich enough to pay the entrance fees. OUTDOORS
+  % A HIGH-END TENT: A canvas tent that costs $10,000 a night to stay in. It's called “glamping,” which is a portmanteau of “camping” and “glad we kept the poors out.” INDOORS
+  % THE PARTY LAKE: People have been known to drown in this lake, so people have been known to hide bodies in its ice-cold waters, too. OUTDOORS
+  [Ruins, Gate, Tent, Lake] = [] ++ 1..N,
+  Locations = [ruins, gate, tent, lake],
+
+  % Clues
+  % Judge Pine was in whatever-the-opposite-of-love-is with the person who brought a brick.
+  Suspect_weapons[Pine] #!= Brick,
+
+  % A messenger from The Circle of the Terrible Candle gave Logico a note that read: A ETHEAFR WSA IROEDCVDSE TSOMANG MNGRICBLU TUATESS.
+  Weapons[Ruins] #= Bow,
+
+  % Whoever had a bow and arrow also had blue eyes.
+  Suspect_weapons[Midnight] #= Bow,
+
+  % Either Miss Saffron brought a pair of gardening shears or Uncle Midnight was at the party lake. (But not both!)
+  Suspect_weapons[Saffron] #= Shears #^ Suspects[Lake] #= Midnight,
+
+  % Whoever was at the entrance gate had a heavy-weight weapon.
+  Weapons[Gate] #= Brick,
+
+  % Whoever was at the party lake had a light-weight weapon.
+  Weapons[Lake] #= Spider,
+
+  % Logico determined the murder took place in a high-end tent based on the clues he found there, specifically the corpse.
+  Suspects[Tent] #= Guilty,
+
+  Vars = [Suspects, Weapons, Suspect_weapons, Guilty],
+  Solns = solve_all([], Vars),
+  foreach (S in Solns)
+    println(S),
+    report_killer(Suspect_names, Weapon_names, Locations, S)
+  end,
+  Solns.len == 1.
+
+report_killer(Suspect_names, Weapon_names, Locations, [Suspects, Weapons, Suspect_weapons, Guilty]) =>
+  nth(Location, Suspects, Guilty),
+  printf("The killer is %w, at the %w with the %w.\n", Suspect_names[Guilty], Locations[Location], Weapon_names[Weapons[Location]]).

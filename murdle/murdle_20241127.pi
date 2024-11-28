@@ -35,7 +35,6 @@ go ?=>
   member($suspect(copper, _, grounds), Suspects),
 
   % Statements: the killer always lies, the innocent always tell the truth
-  member(Guilty, Names),
 
   % Lord Lavender: Officer Copper brought a rare vase.
   (Guilty = lavender || member($suspect(copper, vase, _), Suspects)),
