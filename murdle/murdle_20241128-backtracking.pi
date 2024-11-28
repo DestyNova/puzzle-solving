@@ -1,0 +1,62 @@
+% 2024-11-28: THE MYSTERIOUS MURDER AT THE NATURE RESORT, now with backtracking
+% Try it at https://murdle.com/index.html
+go ?=>
+  suspects(Suspects),
+  % Suspects
+  % UNCLE MIDNIGHT: When his dad died, he bought a desert mansion with a pool and retired. He was 17. 5'8" • LEFT-HANDED • BLUE EYES • BROWN HAIR • SAGITTARIUS
+  % MISS SAFFRON: Gorgeous and stunning, but maybe not all there in the brains department. Or maybe that's what she wants you to think. Or maybe she wants you to think that's what she wants you to think. Only her pet poodle knows. 5'2" • LEFT-HANDED • HAZEL EYES • BLOND HAIR • LIBRA
+  % JUDGE PINE: Master of the courtroom and possessed of a firm belief in justice, as decided by her and her alone. 5'6" • RIGHT-HANDED • BROWN EYES • BLACK HAIR • TAURUS
+  % FATHER MANGO: Father Mango has taken a vow of poverty, but he drives a BMW. He's taken a vow of obedience, but he has a staff of 25. He's taken a vow of chastity, too, which is why he's on vacation. 5'10" • LEFT-HANDED • BROWN EYES • NO HAIR • TAURUS
+  Names = [midnight, saffron, pine, mango],
+  _ = [_ : S in Names, member($suspect(S, _, _), Suspects)],
+
+  % Weapons
+  % A VENOMOUS SPIDER: Definitely not an accident: its unusual webbing shows that this spider is not native to these woods, or even to this hemisphere. Someone brought it on purpose! LIGHT-WEIGHT • MADE OF A LIVE ANIMAL
+  % A BRICK: Red, chipped, and heavy. Logico could imagine someone getting bashed with something like this. It can be identified by a chip of red clay left behind. HEAVY-WEIGHT • MADE OF CLAY
+  % A BOW AND ARROW: Look at this thing: what a beauty! Look at the linen bowstring and the beautiful feathers on the arrows. MEDIUM-WEIGHT • MADE OF WOOD
+  % A PAIR OF GARDENING SHEARS: Rusty, heavy, and dangerous. Logico would swear on his eyebrows that someone could be stabbed with something like this. For evidence of this, look for a rusted iron screw left behind. MEDIUM-WEIGHT • MADE OF METAL
+  foreach (W in [spider, brick, bow, shears])
+    member($suspect(_, W, _), Suspects)
+  end,
+
+  % Locations
+  % THE ANCIENT RUINS: These same ancient ruins have appeared in several places, haven't they? Maybe they are connected somehow... OUTDOORS
+  % THE ENTRANCE GATE: A huge gate that advertises a place where you can disconnect from the modern world so long as the modern world has made you rich enough to pay the entrance fees. OUTDOORS
+  % A HIGH-END TENT: A canvas tent that costs $10,000 a night to stay in. It's called “glamping,” which is a portmanteau of “camping” and “glad we kept the poors out.” INDOORS
+  % THE PARTY LAKE: People have been known to drown in this lake, so people have been known to hide bodies in its ice-cold waters, too. OUTDOORS
+  foreach (L in [ruins, gate, tent, lake])
+    member($suspect(_, _, L), Suspects)
+  end,
+
+  % Clues
+
+  % Judge Pine was in whatever-the-opposite-of-love-is with the person who brought a brick.
+  (member($suspect(pine, brick, _), Suspects) -> fail; true),
+
+  % A messenger from The Circle of the Terrible Candle gave Logico a note that read: A ETHEAFR WSA IROEDCVDSE TSOMANG MNGRICBLU TUATESS.
+  member($suspect(_, bow, ruins), Suspects),
+
+  % Whoever had a bow and arrow also had blue eyes.
+  member($suspect(midnight, bow, _), Suspects),
+
+  % Either Miss Saffron brought a pair of gardening shears or Uncle Midnight was at the party lake. (But not both!)
+  (member($suspect(saffron, shears, _), Suspects) ; member($suspect(midnight, _, lake), Suspects)), % this isn't exclusive though
+
+  % Whoever was at the entrance gate had a heavy-weight weapon.
+  member($suspect(_, brick, gate), Suspects),
+
+  % Whoever was at the party lake had a light-weight weapon.
+  member($suspect(_, spider, lake), Suspects),
+
+  % Logico determined the murder took place in a high-end tent based on the clues he found there, specifically the corpse.
+  member($suspect(Guilty, _, tent), Suspects),
+
+  member($suspect(Guilty, Weapon, Location), Suspects),
+  printf("It was %w in the %w with the %w.\n", Guilty, Location, Weapon),
+  fail.
+
+go => true.
+
+suspects(Suspects) => Suspects = [$suspect(_,_,_) : _ in 1..4].
+
+main => go.
