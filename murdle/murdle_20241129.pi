@@ -1,0 +1,84 @@
+% 2024-11-28: THE MYSTERIOUS MURDER AT THE NATURE RESORT
+% Try it at https://murdle.com/index.html
+import cp.
+
+main =>
+  N = 5,
+  % Suspects
+  % CAPTAIN SLATE: A real-life astronaut. The first woman to travel around the dark side of the moon and also the first to be suspected of murdering her co-pilot. 5'5" • LEFT-HANDED • BROWN EYES • BROWN HAIR • AQUARIUS
+  % BARON MAROON: An incredibly haughty man who holds a grudge. Nobody wants to offend the baron. At least, nobody who's still alive... 6'2" • RIGHT-HANDED • HAZEL EYES • RED HAIR • SCORPIO
+  % VISCOUNT EMINENCE: The oldest man you have ever seen. It's said that he outlived all of his sons and he was born before his father. 5'2" • LEFT-HANDED • GREY EYES • BROWN HAIR • PISCES
+  % SISTER LAPIS: Incredibly pious, she travels the world, doing God's work, but on His dime, too. One of her habits is cashmere and the other is spending. 5'2" • RIGHT-HANDED • BROWN EYES • BROWN HAIR • CANCER
+  % DR. CRIMSON: She's the world's smartest doctor, according to her, and she's right. But just because you're smart doesn't mean you're not a murderer. 5'9" • LEFT-HANDED • GREEN EYES • RED HAIR • AQUARIUS
+  [Slate, Maroon, Eminence, Lapis, Crimson] = [] ++ 1..N,
+  Suspect_names = [slate, maroon, eminence, lapis, crimson],
+  Suspects = new_array(N), % location -> suspect
+  Suspects :: 1..N,
+  all_different(Suspects),
+
+  % Weapons
+  % A COMMEMORATIVE SWORD: This commemorates a great battle won by a great general. MEDIUM-WEIGHT • MADE OF METAL
+  % A PINEAPPLE: One of the most delicious weapons, depending on your personal taste. MEDIUM-WEIGHT • MADE OF CELLULOSE
+  % AN ANTIQUE ANCHOR: Why do people always bring weapons? Logico would swear on his eyebrows that someone could be bashed & beaten with something like this. It can be identified by a heavy chain left behind. HEAVY-WEIGHT • MADE OF METAL
+  % A COCONUT: It's brown. It's fuzzy. It's a killer coconut. MEDIUM-WEIGHT • MADE OF COCOS NUCIFERA
+  % A POISONED COCKTAIL: Deadly, but delicious! Is that vanilla rum? Logico had solved cases where someone was poisoned with something like this. For evidence of this, look for the smell of vanilla rum left behind. LIGHT-WEIGHT • MADE OF CHEMICALS
+  [Sword, Pineapple, Anchor, Coconut, Cocktail] = [] ++ 1..N,
+  Weapon_names = [sword, pineapple, anchor, coconut, cocktail],
+  Weapons = new_array(N), % location -> weapon
+  Weapons :: 1..N,
+  all_different(Weapons),
+
+  Suspect_weapons = new_array(N), % suspect -> weapon
+  Suspect_weapons :: 1..N,
+  foreach (L in 1..N)
+    element(Suspects[L], Suspect_weapons, Weapons[L]) % if a suspect and weapon share a location, then the suspect holds that weapon
+  end,
+
+  % Locations
+  % THE SWIM-UP BAR: A pool with a bar you can swim to. They serve cocktails with a hint of chlorine. OUTDOORS
+  % THE OCEAN: Deep, vast, unforgiving. But also, there are some nice tide pools with some interesting creatures... and maybe a clue? OUTDOORS
+  % A PRIVATE SUITE: The fanciest room you've ever seen. It would be impossible to describe in a way your middle-class brain would understand. INDOORS
+  % THE DINING HALL: At its peak, this dining hall can seat 100 sunburnt tourists a day with the finest china in the country. INDOORS
+  % THE LIFEGUARD STAND: Ironic, if someone was killed at the lifeguard stand, next to a life-preserver. OUTDOORS
+  [Bar, Ocean, Suite, Hall, Stand] = [] ++ 1..N,
+  Locations = [bar, ocean, suite, hall, stand],
+
+  % Clues
+  % The smell of vanilla rum was found beside fine china.
+  Weapons[Hall] #= Cocktail,
+
+  % Whoever had a coconut was right-handed.
+  (Suspect_weapons[Maroon] #= Coconut) #^ (Suspect_weapons[Lapis] #= Coconut),
+
+  % Either Captain Slate brought a pineapple or Baron Maroon was in the ocean. (But not both!)
+  (Suspect_weapons[Slate] #= Pineapple) #^ (Suspects[Ocean] #= Maroon),
+
+  % A piece of brown fuzz was found next to an unused life-preserver.
+  Weapons[Stand] #= Coconut,
+
+  % An Aquarius had the poisoned cocktail.
+  (Suspect_weapons[Slate] #= Cocktail) #^ (Suspect_weapons[Crimson] #= Cocktail),
+
+  % The suspect in a private suite was born on February 07. (i.e. Aquarius)
+  Suspects[Suite] :: [Slate, Crimson],
+
+  % The suspect who was at the swim-up bar had hazel eyes.
+  Suspects[Bar] #= Maroon,
+
+  % Viscount Eminence hated the person who brought an antique anchor.
+  Suspect_weapons[Eminence] #!= Anchor,
+
+  % A commemorative sword was found beside the world's richest man.
+  element(Guilty, Suspect_weapons, Sword),
+
+  Vars = [Suspects, Weapons, Suspect_weapons, Guilty],
+  Solns = solve_all([], Vars),
+  foreach (S in Solns)
+    println(S),
+    report_killer(Suspect_names, Weapon_names, Locations, S),
+  end,
+  Solns.len == 1.
+
+report_killer(Suspect_names, Weapon_names, Locations, [Suspects, Weapons, Suspect_weapons, Guilty]) =>
+  nth(Location, Suspects, Guilty),
+  printf("The killer is %w, at the %w with the %w.\n", Suspect_names[Guilty], Locations[Location], Weapon_names[Weapons[Location]]).
