@@ -1,0 +1,15 @@
+%  ABCDEF
+% ×     F
+%  ------
+%  999999
+
+import cp.
+
+main =>
+  Nums = [A,B,C,D,E,F],
+  Nums :: 1..9,
+  all_different(Nums),
+  (A*100000 + B*10000 + C*1000 + D*100 + E*10 + F) * F #= 999999,
+
+  solve(Nums),
+  println(Nums).
