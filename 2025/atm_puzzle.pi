@@ -1,0 +1,38 @@
+% From Muhammad Zain Sarwar:
+% Solve this Impossible Interview Puzzle of ATM - How Much Money Can You Really Withdraw?
+%
+% https://medium.com/puzzle-sphere/solve-this-impossible-atm-puzzle-9c30b7708dfa
+%
+% """
+% Imagine you need cash urgently. Unfortunately, your only option is a peculiar ATM that seems to have a mind of its own. The ATM has just two operations:
+% - It allows withdrawals of exactly $300.
+% - It permits deposits of exactly $198.
+%
+% You check your bank account and see it has only $500 in total. Your goal is to withdraw as much cash as possible. 
+% """
+
+main =>
+  action(500,B,_),
+  println(500-B).
+
+% Tabling prevents us recursing in an infinite cycle
+table
+action(Balance,B,Action) ?=>
+  Balance <= 500,
+  Balance >= 0,
+  member(Action, [deposit,withdraw]),
+
+  if Action == deposit then
+    Balance2 = Balance + 198,
+    Balance2 <= 500
+  else
+    Balance2 = Balance - 300,
+    Balance2 >= 0
+  end,
+
+  if Balance2 > 0 then
+    (minof(action(Balance2,Min_balance,A2), Min_balance) ; Min_balance = Balance2),
+    B = Min_balance
+  else
+    B = Balance2
+  end.
