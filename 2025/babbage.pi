@@ -1,0 +1,8 @@
+import cp.
+
+% See: https://rosettacode.org/wiki/Babbage_problem
+main =>
+  N :: 1..2**31,
+  N*N mod 1000000 #= 269696,
+  solve([$min(N)], N),
+  println(N).
