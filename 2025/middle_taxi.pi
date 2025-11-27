@@ -1,0 +1,36 @@
+/* 
+  Always take the middle taxi in Picat.
+
+  From 
+  https://www.janestreet.com/static/pdfs/real-numbers/RN_PDF_02.pdf
+  """
+  In the busy city center of Metropolis, exactly half of the cars are yellow taxis. You are
+  trying to catch a taxi with your friend, who is superstitious and will only ride in a taxi that
+  is both directly behind another taxi and directly in front of another taxi. If a stoplight in
+  Metropolis has six cars stopped at it, and each car is a taxi independently with probability
+  1/2, what is the probability that there are three yellow taxis in a row at the traffic light?
+  """
+
+  Via Pascal Bercker: "Jane Street — Problem Of The Week #2 — Take the Taxi in the Middle"
+  https://medium.com/@pbercker/jane-street-problem-of-the-week-2-take-the-taxi-in-the-middle-fb5cf988cb84
+
+  Via Hakan Kjellerstrand: https://hakank.org/picat/ppl/ppl_always_take_the_middle_taxi.pi
+*/
+
+import cp.
+
+main =>
+  N = 6,
+  Cars = new_array(N),
+  Seq = new_array(N-2),
+  [Cars,Seq] :: 0..1,
+  foreach (I in 1..Cars.length-2)
+    Seq[I] #= Cars[I] #/\ Cars[I+1] #/\ Cars[I+2]
+  end,
+  Sum #= sum(Seq),
+  sum(Seq) #> 0, % cases with *at least* 3 taxis in a row
+  %sum(Seq) #= 1, % cases with *exactly* 3 taxis in a row
+  Sols = solve_all([Cars,Seq,Sum]),
+  % Since the probability of a car being a taxi is 0.5, we can just count the
+  % proportion of valid outcomes from all distinct outcomes.
+  printf("%d valid solutions out of %d. p: %f\n", Sols.len, 2**N, Sols.len/2**N).
