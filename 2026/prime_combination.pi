@@ -1,0 +1,29 @@
+% Prime Combination puzzle from https://incoherency.co.uk/blog/stories/prime-combination.html
+% "You come across a 5-digit combination padlock. The combination is 10723. The padlock is
+% currently showing 00001. If the combination is ever set to a number that is not prime, it
+% resets to 00001 immediately, so every intermediate state from 00001 to 10723 also must be
+% prime. How do you input the combination?"
+import planner.
+import util.
+
+get_final() = [1,0,7,2,3].
+
+main =>
+  best_plan([0,0,0,0,1],Plan,Cost),
+  printf("Optimal solution found in %d moves:\n", Cost),
+  foreach ([From,N,Dir,To] in Plan)
+    printf("%w -> dial %d %w -> %w\n", From, N, Dir, To)
+  end.
+
+final(Ds) => Ds == get_final().
+
+action(Ds,Ds1,Action,Cost) ?=>
+  member(Dir,[up,down]),
+  between(1,5,N),
+  Inc = cond(Dir == up, 1, -1),
+  Ds1 = Ds.copy_term(),
+  Ds1[N] := (Ds[N] + Inc + 10) mod 10,
+  X = Ds1.map(to_string).flatten().to_int,
+  X.prime,
+  Cost = 1,
+  Action = [Ds,N,Dir,Ds1].
